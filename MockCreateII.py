@@ -14,6 +14,18 @@ public:
   virtual int GetNumberOfVertices() const = 0;
 }
 
+output file:
+
+#include "IShape.h"
+
+MOCK_BASE_CLASS(MockShape, IShape)
+{
+        MOCK_CONST_METHOD(GetPerimeter, 0, double());
+        MOCK_CONST_METHOD(GetArea, 0, double());
+        MOCK_NON_CONST_METHOD(SetName, 1, void(const std::string& name));
+        MOCK_CONST_METHOD(GetNumberOfVertices, 0, int());
+};
+
 '''
 
 import re
