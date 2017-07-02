@@ -1,6 +1,5 @@
 '''
 Turtle Mock Create 
-KeyWords: C++,Turtle, Mock, Test
 author : Ehsan Mosadeq
 -------------------------
 Input interface file should be as the following form:
