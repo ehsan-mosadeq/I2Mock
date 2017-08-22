@@ -1,7 +1,4 @@
 '''
-Turtle Mock Create 
-author : Ehsan Mosadeq
--------------------------
 Input interface file should be as the following form:
 
 class IShape
@@ -12,18 +9,6 @@ public:
   virtual void SetName(const std::string& name) = 0;
   virtual int GetNumberOfVertices() const = 0;
 }
-
-output file:
-
-#include "IShape.h"
-
-MOCK_BASE_CLASS(MockShape, IShape)
-{
-        MOCK_CONST_METHOD(GetPerimeter, 0, double());
-        MOCK_CONST_METHOD(GetArea, 0, double());
-        MOCK_NON_CONST_METHOD(SetName, 1, void(const std::string& name));
-        MOCK_CONST_METHOD(GetNumberOfVertices, 0, int());
-};
 
 '''
 
@@ -59,11 +44,13 @@ for l in a:
 
 commentStar = re.compile(r"/[*].*?[*]/", flags = re.DOTALL);
 commentBks = re.compile(r"//.*");
+voidFunc = re.compile(r"\(\s*void\s*\)");
 removedComments = re.sub(commentStar, '', loadedFile);
 removedComments = re.sub(commentBks, '', removedComments);
+removedComments = re.sub(voidFunc, '( )', removedComments);
 dtor = re.compile(r"\s*virtual\s+~\w+\s*\(\s*\)\s*.*?;")
 removedDtor = re.sub(dtor,'',removedComments)
-#print(removedDtor)
+print(removedDtor)
 
 classRe = re.compile(r"class\s+(\w+)\s*.*?{\s*public:\s*(.*?)}", flags = re.DOTALL)
 classInc = classRe.search(removedDtor);
