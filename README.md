@@ -7,7 +7,6 @@ The interface file should be like the following sample:
 ```cpp
 class IShape
 {
-
 public:
     virtual double GetPerimeter() const = 0;
     virtual double GetArea() const = 0;
