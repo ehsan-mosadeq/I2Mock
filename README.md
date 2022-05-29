@@ -2,7 +2,7 @@
 
 # Convert a C++ Interface to a [Turtle Mock](http://turtle.sourceforge.net/) class
 
-The interface file should be like the following sample:
+The interface format is considered to be similar to the following sample:
 
 ```cpp
 class IShape
