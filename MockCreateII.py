@@ -21,7 +21,7 @@ def GetNumOfInputs(inputs):
 
 interfaceFilePath = input("Enter interface path:")
 turtleMock = True if input(
-    "Which type of mock do you want to generate? \ngoogle mock: 1\nturtle mock: 2\n") == '2' else False
+    "Which type of mock do you want to generate? \n    google mock: 1\n    turtle mock: 2\n") == '2' else False
 interfaceFolderPath = os.path.dirname(interfaceFilePath)
 
 inputHeader = open(interfaceFilePath)
@@ -54,13 +54,13 @@ className = classInc.group(1)[1:]
 outputFile = open(interfaceFolderPath + '/Mock' + className + '.h', 'w')
 print('#include "I'+className+'.h"')
 print()
-outputFile.writelines(['#include "I' + className + '.h"\n', ''])
+outputFile.writelines(['#include "I' + className + '.h"\n', '\n'])
 
 if turtleMock: # trutle mock
     classDclr = 'MOCK_BASE_CLASS(Mock' + className+ ', I' + className+')'
     print(classDclr)
     print('{')
-    outputFile.writelines([classDclr, ''])
+    outputFile.writelines([classDclr + '\n', '{\n'])
 
     for func in funcMatches:
         returnType = func[0]
@@ -70,28 +70,29 @@ if turtleMock: # trutle mock
         numberOfInputs = str(GetNumOfInputs(inputs))
 
         if isConst:
-            print('	MOCK_CONST_METHOD('+ methodName + ', ' +
+            print('    MOCK_CONST_METHOD('+ methodName + ', ' +
                   numberOfInputs + ', ' + returnType+'(' + inputs + '));')
-            outputFile.write('	MOCK_CONST_METHOD(' + methodName + ', ' +
+            outputFile.write('    MOCK_CONST_METHOD(' + methodName + ', ' +
                              numberOfInputs + ', ' + returnType + '(' + inputs + '));\n')
         else:
-            print('	MOCK_NON_CONST_METHOD('+methodName+', ' +
+            print('    MOCK_NON_CONST_METHOD('+methodName+', ' +
                   numberOfInputs+', '+returnType+'('+inputs+'));')
-            outputFile.write('	MOCK_NON_CONST_METHOD('+methodName +
+            outputFile.write('    MOCK_NON_CONST_METHOD('+methodName +
                              ', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
 
 else:  # google mock
-    classDclr = 'class' + className + ': public I' + className
+    classDclr = 'class Mock' + className + ': public I' + className
     print(classDclr)
     print('{')
+    outputFile.writelines([classDclr + '\n', '{\n'])
     for func in funcMatches:
         returnType = func[0]
         methodName = func[1]
-        inputs = func[2]
+        inputs = '(' + func[2] + ')'
         isConst = (func[3] == 'const')
-        specs = ', (' + ('const, ' if isConst else '') + 'virtual)'
-        inputs = ', ' + '(' + inputs + ')' if re.search(',', inputs) else inputs
-        mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + inputs + specs + ');'
+        specs = '(' + ('const, ' if isConst else '') + 'virtual)'
+        returnType = '(' + returnType + ')' if re.search(',', returnType) else returnType
+        mockFunc = 'MOCK_METHOD(' + returnType + ', ' + methodName + ', ' + inputs + ', ' + specs + ');'
         print('  ' + mockFunc)
         outputFile.write('    ' + mockFunc + '\n')
 
