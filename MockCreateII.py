@@ -78,10 +78,10 @@ for func in funcMatches:
     methodName = func[1]
     inputs = func[2]
     isConst = (func[3] == 'const')
+    specs = ''
     
-    if isConst:
-        mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + ', (' + inputs + '));'
-        #outputFile.write('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
+    mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + ', (' + inputs + ')'+ specs +');'
+    #outputFile.write('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
     
 print ('};')
 #------------------------------------------------------------------------
