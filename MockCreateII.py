@@ -7,85 +7,98 @@ def GetNumOfInputs(inputs):
     for c in inputs:
         if c == '<':
             template += 1
-        if c == ',' and template == 0 :
+        if c == ',' and template == 0:
             count = count + 1
         if c == '>':
             template -= 1
-    
+
     if len(inputs) == 0:
         count = 0
     else:
-        count +=1
+        count += 1
 
     return count
 
+interfaceFilePath = input("Enter interface path:")
+turtleMock = True if input(
+    "Which type of mock do you want to generate? \ngoogle mock: 1\nturtle mock: 2\n") == '2' else False
+interfaceFolderPath = os.path.dirname(interfaceFilePath)
 
-address = input("Enter interface path:")
-dirName = os.path.dirname(address);
-a = open(address)
+inputHeader = open(interfaceFilePath)
+interfaceStr = ""
+for line in inputHeader:
+    interfaceStr += line
 
-loadedFile="";
-for l in a:
-    loadedFile += l;
-
-commentStar = re.compile(r"/[*].*?[*]/", flags = re.DOTALL);
-commentBks = re.compile(r"//.*");
-voidFunc = re.compile(r"\(\s*void\s*\)");
-removedComments = re.sub(commentStar, '', loadedFile);
-removedComments = re.sub(commentBks, '', removedComments);
-removedComments = re.sub(voidFunc, '( )', removedComments);
+commentStarRgx = re.compile(r"/[*].*?[*]/", flags=re.DOTALL)
+commentBackSpaceRgx = re.compile(r"//.*")
+voidFuncRgx = re.compile(r"\(\s*void\s*\)")
+cleanedInterfaceStr = re.sub(commentStarRgx, '', interfaceStr)
+cleanedInterfaceStr = re.sub(commentBackSpaceRgx, '', cleanedInterfaceStr)
+cleanedInterfaceStr = re.sub(voidFuncRgx, '( )', cleanedInterfaceStr)
 dtor = re.compile(r"\s*virtual\s+~\w+\s*\(\s*\)\s*.*?;")
-removedDtor = re.sub(dtor,'',removedComments)
-print(removedDtor)
+cleanedInterfaceStr = re.sub(dtor, '', cleanedInterfaceStr)
+print(cleanedInterfaceStr)
 
-classRe = re.compile(r"class\s+(\w+)\s*.*?{\s*public:\s*(.*?)}", flags = re.DOTALL)
-classInc = classRe.search(removedDtor);
+classRe = re.compile(
+    r"class\s+(\w+)\s*.*?{\s*public:\s*(.*?)}", flags=re.DOTALL)
+classInc = classRe.search(cleanedInterfaceStr)
 
-#print(classInc.group(1))
-#print(classInc.group(2))
-functionsRe = re.compile(r"virtual\s+(.*?)\s+(\w+)\s*\(\s*(.*?)\s*\)\s*(\w*)\s*=\s*0\s*;", flags = re.DOTALL)
+# print(classInc.group(1))
+# print(classInc.group(2))
+functionsRe = re.compile(
+    r"virtual\s+(.*?)\s+(\w+)\s*\(\s*(.*?)\s*\)\s*(\w*)\s*=\s*0\s*;", flags=re.DOTALL)
 funcMatches = functionsRe.findall(classInc.group(2))
 
 className = classInc.group(1)[1:]
-#print(className)
-outputFile = open(dirName + '/Mock' + className + '.h', 'w') 
-print ('#include "I'+className+'.h"')
-print ()
-print ('MOCK_BASE_CLASS(Mock'+className+', I'+className+')')
-print ('{')
-outputFile.write('#include "I'+className+'.h"\n')
-outputFile.write('\n')
-outputFile.write('MOCK_BASE_CLASS(Mock'+className+', I'+className+')\n')
-outputFile.write('{\n')
+# print(className)
+outputFile = open(interfaceFolderPath + '/Mock' + className + '.h', 'w')
+print('#include "I'+className+'.h"')
+print()
+outputFile.writelines(['#include "I' + className + '.h"\n', ''])
 
-for func in funcMatches:
-    returnType = func[0]
-    methodName = func[1]
-    inputs = func[2]
-    isConst = (func[3] == 'const')
-    numberOfInputs = str(GetNumOfInputs(inputs))
-    
-    if isConst:
-        print('	MOCK_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
-        outputFile.write('	MOCK_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
-    else:
-        print('	MOCK_NON_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
-        outputFile.write('	MOCK_NON_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
-print ('};')
-#-----------------------------------------------------------------------
-for func in funcMatches:
-    returnType = func[0]
-    methodName = func[1]
-    inputs = func[2]
-    isConst = (func[3] == 'const')
-    specs = ''
-    
-    mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + ', (' + inputs + ')'+ specs +');'
-    #outputFile.write('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
-    
-print ('};')
-#------------------------------------------------------------------------
+if turtleMock: # trutle mock
+    classDclr = 'MOCK_BASE_CLASS(Mock' + className+ ', I' + className+')'
+    print(classDclr)
+    print('{')
+    outputFile.writelines([classDclr, ''])
+
+    for func in funcMatches:
+        returnType = func[0]
+        methodName = func[1]
+        inputs = func[2]
+        isConst = (func[3] == 'const')
+        numberOfInputs = str(GetNumOfInputs(inputs))
+
+        if isConst:
+            print('	MOCK_CONST_METHOD('+ methodName + ', ' +
+                  numberOfInputs + ', ' + returnType+'(' + inputs + '));')
+            outputFile.write('	MOCK_CONST_METHOD(' + methodName + ', ' +
+                             numberOfInputs + ', ' + returnType + '(' + inputs + '));\n')
+        else:
+            print('	MOCK_NON_CONST_METHOD('+methodName+', ' +
+                  numberOfInputs+', '+returnType+'('+inputs+'));')
+            outputFile.write('	MOCK_NON_CONST_METHOD('+methodName +
+                             ', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
+
+else:  # google mock
+    classDclr = 'class' + className + ': public I' + className
+    print(classDclr)
+    print('{')
+    for func in funcMatches:
+        returnType = func[0]
+        methodName = func[1]
+        inputs = func[2]
+        isConst = (func[3] == 'const')
+        specs = ', (' + ('const, ' if isConst else '') + 'virtual)'
+        inputs = ', ' + '(' + inputs + ')' if re.search(',', inputs) else inputs
+        mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + inputs + specs + ');'
+        print('  ' + mockFunc)
+        outputFile.write('    ' + mockFunc + '\n')
+
+print('};')
 outputFile.write('};')
-a.close()
+
+inputHeader.close()
 outputFile.close()
-input();
+
+input()
