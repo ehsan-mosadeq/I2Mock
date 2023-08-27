@@ -2,22 +2,22 @@ import re
 import os
 
 def GetNumOfInputs(inputs):
-	template = 0
-	count = 0
-	for c in inputs:
-		if c == '<':
-			template += 1
-		if c == ',' and template == 0 :
-			count = count + 1
-		if c == '>':
-			template -= 1
-	
-	if len(inputs) == 0:
-		count = 0
-	else:
-		count +=1
+    template = 0
+    count = 0
+    for c in inputs:
+        if c == '<':
+            template += 1
+        if c == ',' and template == 0 :
+            count = count + 1
+        if c == '>':
+            template -= 1
+    
+    if len(inputs) == 0:
+        count = 0
+    else:
+        count +=1
 
-	return count
+    return count
 
 
 address = input("Enter interface path:")
@@ -26,7 +26,7 @@ a = open(address)
 
 loadedFile="";
 for l in a:
-	loadedFile += l;
+    loadedFile += l;
 
 commentStar = re.compile(r"/[*].*?[*]/", flags = re.DOTALL);
 commentBks = re.compile(r"//.*");
@@ -59,19 +59,32 @@ outputFile.write('MOCK_BASE_CLASS(Mock'+className+', I'+className+')\n')
 outputFile.write('{\n')
 
 for func in funcMatches:
-	returnType = func[0]
-	funcName = func[1]
-	inputs = func[2]
-	isConst = (func[3] == 'const')
-	numberOfInputs = str(GetNumOfInputs(inputs))
-	
-	if isConst:
-		print('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
-		outputFile.write('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
-	else:
-		print('	MOCK_NON_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
-		outputFile.write('	MOCK_NON_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
+    returnType = func[0]
+    methodName = func[1]
+    inputs = func[2]
+    isConst = (func[3] == 'const')
+    numberOfInputs = str(GetNumOfInputs(inputs))
+    
+    if isConst:
+        print('	MOCK_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
+        outputFile.write('	MOCK_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
+    else:
+        print('	MOCK_NON_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));')
+        outputFile.write('	MOCK_NON_CONST_METHOD('+methodName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
 print ('};')
+#-----------------------------------------------------------------------
+for func in funcMatches:
+    returnType = func[0]
+    methodName = func[1]
+    inputs = func[2]
+    isConst = (func[3] == 'const')
+    
+    if isConst:
+        mockFunc = 'MOCK_METHOD((' + returnType + '), ' + methodName + ', (' + inputs + '));'
+        #outputFile.write('	MOCK_CONST_METHOD('+funcName+', '+numberOfInputs+', '+returnType+'('+inputs+'));\n')
+    
+print ('};')
+#------------------------------------------------------------------------
 outputFile.write('};')
 a.close()
 outputFile.close()
