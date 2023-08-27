@@ -2,7 +2,7 @@
 
 # Convert a C++ Interface to a [Google Mock](https://github.com/google/googletest/tree/main/googlemock) or [Turtle Mock](http://turtle.sourceforge.net/) class
 
-The interface format could be similar to the following sample. By running the script the path of the header file and the desired generated mock should be given so the output will be written in a file named (Mock[interface name].h), and next to the given header file.
+The interface format could be similar to the following sample. By running the script the path of the header file and the type of generated mock, google or turtle mock, should be given so the output will be written in a file named (Mock[interface name].h), and next to the given header file.
 
 ## Sample Input
 
