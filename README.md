@@ -25,11 +25,12 @@ public:
 
 class MockShape: public IShape
 {
-    MOCK_METHOD(double, GetPerimeter, (), (const, virtual));
-    MOCK_METHOD(double, GetArea, (), (const, virtual));
-    MOCK_METHOD(void, SetName, (const std::string& name), (virtual));
-    MOCK_METHOD(int, GetNumberOfVertices, (), (const, virtual));
-    MOCK_METHOD((std::pair<double, double>), GetVertexPosition, (int vertexIx), (const, virtual));
+public:
+    MOCK_METHOD(double, GetPerimeter, (), (const, override));
+    MOCK_METHOD(double, GetArea, (), (const, override));
+    MOCK_METHOD(void, SetName, (const std::string& name), (override));
+    MOCK_METHOD(int, GetNumberOfVertices, (), (const, override));
+    MOCK_METHOD((std::pair<double, double>), GetVertexPosition, (int vertexIx), (const, override));
 };
 ```
 
