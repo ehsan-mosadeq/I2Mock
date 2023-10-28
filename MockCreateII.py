@@ -83,14 +83,14 @@ if turtleMock: # trutle mock
 else:  # google mock
     classDclr = 'class Mock' + className + ': public I' + className
     print(classDclr)
-    print('{')
-    outputFile.writelines([classDclr + '\n', '{\n'])
+    print('{\npublic:\n')
+    outputFile.writelines([classDclr + '\n', '{\npublic:\n'])
     for func in funcMatches:
         returnType = func[0]
         methodName = func[1]
         inputs = '(' + func[2] + ')'
         isConst = (func[3] == 'const')
-        specs = '(' + ('const, ' if isConst else '') + 'virtual)'
+        specs = '(' + ('const, ' if isConst else '') + 'override)'
         returnType = '(' + returnType + ')' if re.search(',', returnType) else returnType
         mockFunc = 'MOCK_METHOD(' + returnType + ', ' + methodName + ', ' + inputs + ', ' + specs + ');'
         print('  ' + mockFunc)
